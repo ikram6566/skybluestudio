@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sky Blue Studio — Batch Photo Branding Tool</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <header class="topbar">
+    <div class="topbar__mark">
+      <span class="topbar__frame">36A</span>
+      <span class="topbar__title">Sky&nbsp;Blue&nbsp;Studio</span>
+    </div>
+    <p class="topbar__tagline">Crop → brighten → watermark, a whole roll at once.</p>
+    <nav class="tabnav">
+      <a href="index.html" class="tabnav__link is-active">Photo Editor</a>
+      <a href="description.html" class="tabnav__link">Description Writer</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+
+    <!-- STEP 1 -->
+    <section class="panel" id="panel-source">
+      <div class="panel__head">
+        <span class="panel__num">01</span>
+        <h2>Load the roll</h2>
+      </div>
+      <p class="panel__hint">Pick a folder of photos. Everything stays in this browser tab — nothing uploads anywhere.</p>
+
+      <div class="dropzone" id="dropzone-photos" role="button" tabindex="0">
+        <span class="dropzone__title">Choose folder</span>
+        <span class="dropzone__sub">JPG, PNG, WebP</span>
+      </div>
+      <input type="file" id="input-photos" webkitdirectory directory multiple accept="image/jpeg,image/png,image/webp" hidden />
+      <input type="file" id="input-photos-files" multiple accept="image/jpeg,image/png,image/webp" hidden />
+      <button class="link-btn" id="btn-pick-files" type="button">…or pick individual files instead</button>
+
+      <p class="field__note" id="save-mode-note"></p>
+
+      <div class="filecount" id="photo-count">No photos loaded yet.</div>
+
+      <div class="autoclean-bar" id="autoclean-bar" hidden>
+        <div class="segmented" id="ctl-autosensitivity">
+          <button type="button" class="segmented__opt" data-sens="low">Low</button>
+          <button type="button" class="segmented__opt is-active" data-sens="medium">Medium</button>
+          <button type="button" class="segmented__opt" data-sens="high">High</button>
+        </div>
+        <button type="button" class="link-btn" id="btn-autoclean-all">Auto-clean all photos</button>
+      </div>
+      <p class="autoclean-bar__status" id="autoclean-status" hidden></p>
+
+      <div class="photo-grid" id="photo-grid" hidden></div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="panel" id="panel-logo">
+      <div class="panel__head">
+        <span class="panel__num">02</span>
+        <h2>Load the logo</h2>
+      </div>
+      <p class="panel__hint">PNG with transparency works best — position and opacity are set below.</p>
+
+      <label class="dropzone dropzone--small" id="dropzone-logo" for="input-logo">
+        <span class="dropzone__title">Choose logo file</span>
+        <span class="dropzone__sub">PNG recommended</span>
+      </label>
+      <input type="file" id="input-logo" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden />
+      <div class="logo-preview" id="logo-preview">
+        <img id="logo-preview-img" alt="Logo preview" />
+        <div class="logo-preview__meta">
+          <span class="logo-preview__label" id="logo-preview-label">Default: Sky Blue Real Estate logo</span>
+          <span class="logo-preview__sub">Pick a file above any time to replace it.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="panel" id="panel-settings">
+      <div class="panel__head">
+        <span class="panel__num">03</span>
+        <h2>Dial it in</h2>
+      </div>
+
+      <div class="field">
+        <div class="field__label-row">
+          <label for="ctl-brightness">Brightness</label>
+          <span class="field__value" id="val-brightness">112%</span>
+        </div>
+        <input type="range" id="ctl-brightness" min="100" max="150" value="112" />
+        <p class="field__note">100% = untouched. "A little bit bright" starts around 108–115%.</p>
+      </div>
+
+      <div class="field">
+        <div class="field__label-row">
+          <label for="ctl-opacity">Logo opacity</label>
+          <span class="field__value" id="val-opacity">49%</span>
+        </div>
+        <input type="range" id="ctl-opacity" min="5" max="100" value="49" />
+      </div>
+
+      <div class="field">
+        <div class="field__label-row">
+          <label for="ctl-logosize">Logo width (% of frame)</label>
+          <span class="field__value" id="val-logosize">32%</span>
+        </div>
+        <input type="range" id="ctl-logosize" min="2" max="90" value="32" />
+        <p class="field__note">Logo scales as a % of each output photo's width, so it stays proportional whether or not you crop.</p>
+      </div>
+
+      <div class="field">
+        <div class="field__label-row">
+          <label>Frame size</label>
+        </div>
+        <div class="segmented segmented--wrap" id="ctl-framesize">
+          <button type="button" class="segmented__opt is-active" data-preset="marketplace">Marketplace / Website — 1024×768</button>
+          <button type="button" class="segmented__opt" data-preset="ig-square">Instagram Square — 1080×1080</button>
+          <button type="button" class="segmented__opt" data-preset="ig-portrait">Instagram Portrait — 1080×1350</button>
+          <button type="button" class="segmented__opt" data-preset="flyer">Print Flyer — 1800×1200</button>
+          <button type="button" class="segmented__opt" data-preset="custom">Custom</button>
+        </div>
+        <div class="custom-size" id="custom-size-fields" hidden>
+          <label>W <input type="number" id="ctl-custom-w" min="100" max="6000" value="1024" /></label>
+          <label>H <input type="number" id="ctl-custom-h" min="100" max="6000" value="768" /></label>
+        </div>
+        <p class="field__note">Only applies in "Fill frame" or "Fit whole photo" crop modes below — ignored when you don't crop.</p>
+      </div>
+
+      <div class="field">
+        <div class="field__label-row">
+          <label>Logo position</label>
+        </div>
+        <div class="segmented segmented--wrap" id="ctl-logopos">
+          <button type="button" class="segmented__opt is-active" data-pos="center">Center</button>
+          <button type="button" class="segmented__opt" data-pos="top-left">Top left</button>
+          <button type="button" class="segmented__opt" data-pos="top-right">Top right</button>
+          <button type="button" class="segmented__opt" data-pos="bottom-left">Bottom left</button>
+          <button type="button" class="segmented__opt" data-pos="bottom-right">Bottom right</button>
+          <button type="button" class="segmented__opt" data-pos="bottom-center">Bottom center (banner)</button>
+        </div>
+        <p class="field__note">Corner and bottom placements keep the logo off the middle of the shot — worth trying if a centered mark ever covers the room's best feature.</p>
+      </div>
+
+      <div class="field">
+        <div class="field__label-row">
+          <label for="ctl-qualitycheck">Flag dark / blurry photos</label>
+          <span class="field__value" id="val-qualitycheck">On</span>
+        </div>
+        <div class="segmented" id="ctl-qualitytoggle">
+          <button type="button" class="segmented__opt is-active" data-check="on">On</button>
+          <button type="button" class="segmented__opt" data-check="off">Off</button>
+        </div>
+        <p class="field__note">Quick heuristic scan of each source photo — not a guarantee, just a heads-up before you post.</p>
+      </div>
+
+      <div class="field">
+        <div class="field__label-row">
+          <label>Crop mode</label>
+        </div>
+        <div class="segmented" id="ctl-cropmode">
+          <button type="button" class="segmented__opt is-active" data-mode="cover">Fill frame (crop edges)</button>
+          <button type="button" class="segmented__opt" data-mode="contain">Fit whole photo (letterbox)</button>
+          <button type="button" class="segmented__opt" data-mode="none">Don't crop (keep original size)</button>
+        </div>
+        <p class="field__note" id="cropmode-note">Edges outside the frame's ratio get trimmed to fill it exactly.</p>
+      </div>
+
+      <div class="field">
+        <div class="field__label-row">
+          <label for="ctl-format">Output format</label>
+        </div>
+        <div class="segmented" id="ctl-format">
+          <button type="button" class="segmented__opt is-active" data-format="jpeg">JPEG (smaller, PPI stamped)</button>
+          <button type="button" class="segmented__opt" data-format="png">PNG (lossless, no PPI stamp)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTION -->
+    <section class="panel panel--action" id="panel-run">
+      <button class="btn-run" id="btn-run" disabled>Process roll</button>
+      <div class="progress" id="progress" hidden>
+        <div class="progress__bar"><div class="progress__fill" id="progress-fill"></div></div>
+        <span class="progress__label" id="progress-label">0 / 0</span>
+      </div>
+      <button class="btn-download" id="btn-download" hidden>Download all as .zip</button>
+      <p class="save-status" id="save-status" hidden></p>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="panel panel--results" id="panel-results" hidden>
+      <div class="panel__head">
+        <span class="panel__num">04</span>
+        <h2>Contact sheet</h2>
+      </div>
+      <p class="panel__hint" id="quality-summary" hidden></p>
+      <div class="sheet" id="sheet"></div>
+    </section>
+
+  </main>
+
+  <div class="cleanup-modal" id="cleanup-modal" hidden>
+    <div class="cleanup-modal__box">
+      <div class="cleanup-modal__head">
+        <h3>Clean up <span id="cleanup-filename"></span></h3>
+        <button type="button" class="cleanup-modal__close" id="cleanup-close" aria-label="Close">&times;</button>
+      </div>
+      <p class="cleanup-modal__hint">
+        Brush over a small unwanted object — a cable, a stray item, a bit of clutter — sitting on a
+        <strong>plain background</strong> like a wall, floor, or ceiling. This is a basic local fill, not real AI
+        object removal: it blends in nearby colors rather than reconstructing texture or pattern, so it works
+        best on simple areas and will look smudgy on busy backgrounds or large objects. Treat it as a light touch-up,
+        not a guarantee — check the result before saving.
+        <br /><br />
+        Prefer not to brush? <strong>Auto-clean</strong> scans the photo itself and fills in small isolated
+        spots — dust specks, tiny marks — on its own. It only touches small, isolated blemishes (never large
+        areas), so it will miss anything bigger and occasionally miss a spot entirely. Use it as a first pass,
+        then brush over anything it left behind.
+      </p>
+      <div class="cleanup-modal__canvaswrap" id="cleanup-canvaswrap">
+        <div class="cleanup-modal__canvasinner" id="cleanup-canvasinner">
+          <canvas id="cleanup-canvas"></canvas>
+          <canvas id="cleanup-mask-canvas"></canvas>
+        </div>
+      </div>
+      <div class="cleanup-modal__controls">
+        <label class="cleanup-modal__brush">
+          Brush size
+          <input type="range" id="cleanup-brush-size" min="10" max="100" value="30" />
+        </label>
+        <div class="cleanup-modal__btns">
+          <button type="button" class="link-btn" id="cleanup-undo">Undo last stroke</button>
+          <button type="button" class="link-btn" id="cleanup-reset">Reset to original</button>
+          <button type="button" class="btn-download" id="cleanup-autoclean">Auto-clean (no brushing)</button>
+          <button type="button" class="btn-download" id="cleanup-apply">Remove marked area</button>
+          <button type="button" class="btn-run" id="cleanup-save">Save &amp; close</button>
+        </div>
+        <p class="cleanup-modal__status" id="cleanup-status"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Runs entirely client-side in your browser via &lt;canvas&gt;. No server, no upload, no storage.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="cleanup.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
